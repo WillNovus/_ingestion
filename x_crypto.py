@@ -63,14 +63,10 @@ def connect_to_endpoint(header: dict, parameters: dict, max_retries: int = 5) ->
     raise requests.exceptions.RetryError("Max retries exceeded. Unable to get data. ")
 
 
-json_response = connect_to_endpoint(header=headers, parameters=query_parameters)
-tweets_data = pd.DataFrame()
-users_data = pd.DataFrame()
-
 def process_x_data(json_response: json,
                    query_tag: str,
-                   tweets_data: pd.DataFrame,
-                   users_data: pd.DataFrame
+                   tweets_df: pd.DataFrame,
+                   users_df: pd.DataFrame
                    ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Adds new tweet/user information to the table of 
@@ -80,12 +76,23 @@ def process_x_data(json_response: json,
 
     if "data" in json_response.keys():
         new = pd.DataFrame(json_response["data"])
-        tweets_data = pd.concat([tweets_data, new])
-        tweets_data.to_pickle("tweets_" + query_tag + ".pkl")
+        tweets_df = pd.concat([tweets_df, new])
+        tweets_df.to_pickle("tweets_" + query_tag + ".pkl")
 
         if "users" in json_response["includes"].keys():
             new = pd.DataFrame(json_response["includes"]["users"])
-            users_data = pd.concat([users_data, new])
-            users_data.drop_duplicates("id", inplace=True)
-            users_data.to_pickle("users_" + query_tag + ".pkl")
-    return tweets_data, users_data 
+            users_df = pd.concat([users_df, new])
+            users_df.drop_duplicates("id", inplace=True)
+            users_df.to_pickle("users_" + query_tag + ".pkl")
+    return tweets_df, users_df 
+
+
+j_response = connect_to_endpoint(header=headers, parameters=query_parameters)
+tweets_data = pd.DataFrame()
+users_data = pd.DataFrame()
+
+tag = "crypto"
+
+tweets_data, users_data = process_x_data(
+        j_response, tag, tweets_data, users_data
+    )
