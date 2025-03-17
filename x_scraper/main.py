@@ -2,6 +2,7 @@ from ntscraper import Nitter
 import pandas as pd
 
 def scrape_tweets(terms, num_tweets=10):
+    '''func to scrape tweets'''
     scraper = Nitter()
     crypto_tweets = scraper.get_tweets(terms, mode='term', number=num_tweets)
 
@@ -18,6 +19,7 @@ def scrape_tweets(terms, num_tweets=10):
 
 
 def save_to_csv(df, filename="x_scraper.csv"):
+    '''save file in csv'''
     df.to_csv(filename, index=False)
 
 
